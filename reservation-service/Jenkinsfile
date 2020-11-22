@@ -1,30 +1,31 @@
 pipeline {
-
-
         agent any
-       
+        
         tools{
                 maven 'Maven'
         }
- 
         stages{
-        
-            stage('Clean'){
-             
-				                 echo "Clean project"
-				                 bat "mvn clean"
-			
+            stage('clean'){
+                steps {
+                 echo "clean project"
+                 bat "mvn clean"
+
+                }
             }
-
-             stage('build'){
-                             
-				                 echo "Deploy project"
-				                 bat "mvn build"
-				             
-         
-             }
-        
+            stage('Test'){
+                steps{ 
+                 echo "test project"
+                 bat "mvn test"
+                        
+                }
+            }
+            stage('build'){
+                steps {
+                 echo "Deploy project"
+                 bat "mvn deploy"
+     
+                        
+                }
+            }
         }
-
-
 }
