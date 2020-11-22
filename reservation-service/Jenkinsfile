@@ -1,0 +1,30 @@
+pipeline {
+
+
+        agent any
+       
+        tools{
+                maven 'Maven'
+        }
+ 
+        stages{
+        
+            stage('Clean'){
+             
+				                 echo "Clean project"
+				                 bat "mvn clean"
+			
+            }
+
+             stage('build'){
+                             
+				                 echo "Deploy project"
+				                 bat "mvn build"
+				             
+         
+             }
+        
+        }
+
+
+}
