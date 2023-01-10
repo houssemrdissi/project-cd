@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+#
+# Setup git pre-commit hook using 'git config core.hooksPath .githooks'
+#
+
+LC_ALL=C
+set -Eeuo pipefail
+
+local_branch=${1:-$(git rev-parse --abbrev-ref HEAD)}
+
+if grep -q '^renovate/' <<< "${local_branch}" ; then
+    echo "Skip branch requirements for renovate bot"
+    exit 0
+fi
+
+# This regex enforces two things
+# 1. YouTrack ticket prefix
+# 2. No special characters in branch name (as it used other places that don't support this)
+valid_branch_regex="^(revert-[0-9]+-)?[A-Z]+-[0-9]+[_-][A-Za-z0-9._-]+$"
+# 3. BLA-000 is not a valid ticket ID
+invalid_branch_regex="^[A-Z]+-0+[_-][A-Za-z0-9._-]+$"
+
+if [[ "${local_branch}" =~ ${invalid_branch_regex} ]]
+then
+    cat << __END_OF_MESSAGE__ >&2
+Please use a ticket ID that exist in YouTrack: ${local_branch}
+Your commit will be rejected.
+You should use an existing ticket or create a new ticket in YouTrack and try again.
+__END_OF_MESSAGE__
+    exit 1
+fi
+
+if [[ ! "${local_branch}" =~ ${valid_branch_regex} ]]
+then
+    cat << __END_OF_MESSAGE__ >&2
+There is something wrong with your branch name: ${local_branch}
+Branch names in this project must adhere to this contract: ${valid_branch_regex}
+Your commit will be rejected.
+You should rename your branch to a valid name and try again.
+__END_OF_MESSAGE__
+    exit 1
+fi
